@@ -1,74 +1,87 @@
 package ru.tohaman.nls
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.IBinder
+import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
 
 class MyNotesListenerService : NotificationListenerService() {
 
-    /*
-        These are the package names of the apps. for which we want to
-        listen the notifications
-     */
-    private object ApplicationPackageNames {
-        const val NLS_PACK_NAME = "ru.tohaman.nls"
-        const val SHAZAM_PACK_NAME = "com.shazam.android"
-        const val WHATSAPP_PACK_NAME = "com.whatsapp"
-        const val INSTAGRAM_PACK_NAME = "com.instagram.android"
+    private var mBinder: IBinder? = null
+
+    override fun onBind(intent: Intent): IBinder? {
+        if (mBinder == null)
+            mBinder = super.onBind(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            onListenerConnected()
+        return mBinder
     }
 
-    /*
-        These are the return codes we use in the method which intercepts
-        the notifications, to decide whether we should do something or not
-     */
-    object InterceptedNotificationCode {
-        const val NLS_CODE = 1
-        const val WHATSAPP_CODE = 2
-        const val SHAZAM_CODE = 3
-        const val OTHER_NOTIFICATIONS_CODE = 4 // We ignore all notification with code == 4
+    override fun onCreate() {
+        super.onCreate()
+        if (!isListeningAuthorized(this))
+            return
+        Log.d("NotificationListener", "onCreate: ")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        this.mBinder = null
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        val notificationCode = matchNotificationCode(sbn)
+        //val notificationCode = matchNotificationCode(sbn)
 
-        if (notificationCode == InterceptedNotificationCode.SHAZAM_CODE) {
-            val retString = sbn.notification.tickerText.toString()
+//        if (notificationCode == InterceptedNotificationCode.SHAZAM_CODE) {
+            val retString = if (sbn.notification.tickerText == null) {
+                sbn.packageName
+            } else {sbn.notification.tickerText.toString()}
 
             val intent = Intent("ru.tohaman.nls")
             intent.putExtra("Notification Code", retString)
             sendBroadcast(intent)
-        }
+//        }
     }
 
 
-//    override fun onNotificationRemoved(sbn: StatusBarNotification) {
-//        val notificationCode = matchNotificationCode(sbn)
-//
-//        val activeNotifications = this.activeNotifications
-//
-//        if (activeNotifications != null && activeNotifications.isNotEmpty()) {
-//            for (i in activeNotifications.indices) {
-//                if (notificationCode == matchNotificationCode(activeNotifications[i])) {
-//                    val intent = Intent("ru.tohaman.nls")
-//                    intent.putExtra("Notification Code", notificationCode)
-//                    sendBroadcast(intent)
-//                    break
-//                }
-//            }
-//        }
-//    }
+    override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        val notificationCode = matchNotificationCode(sbn)
 
-     private fun matchNotificationCode(sbn: StatusBarNotification): Int {
-        val packageName = sbn.packageName
+        val activeNotifications = this.activeNotifications
 
-        return if (packageName == ApplicationPackageNames.NLS_PACK_NAME) {
-            InterceptedNotificationCode.NLS_CODE
-        } else if (packageName == ApplicationPackageNames.SHAZAM_PACK_NAME) {
-            InterceptedNotificationCode.SHAZAM_CODE
-        } else if (packageName == ApplicationPackageNames.WHATSAPP_PACK_NAME) {
-            InterceptedNotificationCode.WHATSAPP_CODE
-        } else {
-            InterceptedNotificationCode.OTHER_NOTIFICATIONS_CODE
+        if (activeNotifications != null && activeNotifications.isNotEmpty()) {
+            for (i in activeNotifications.indices) {
+                if (notificationCode == matchNotificationCode(activeNotifications[i])) {
+                    val intent = Intent("ru.tohaman.nls")
+                    intent.putExtra("Notification Code", notificationCode)
+                    sendBroadcast(intent)
+                    break
+                }
+            }
         }
+    }
+
+     private fun matchNotificationCode(sbn: StatusBarNotification): String {
+
+         return sbn.packageName
+//        }
+    }
+
+
+    /**
+     * check if permission is there to read notifications
+     * @param context If you are android developer and you don't know context, may god bless you
+     * @return boolean status about permission
+     */
+    fun isListeningAuthorized(context: Context): Boolean {
+        val contentResolver = context.contentResolver
+        val enabledNotificationListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+        val packageName = context.packageName
+
+        return !(enabledNotificationListeners == null || !enabledNotificationListeners.contains(packageName))
     }
 }

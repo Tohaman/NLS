@@ -1,26 +1,45 @@
 package ru.tohaman.nls
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.*
+import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.Settings
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.text.TextUtils
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.noButton
-import org.jetbrains.anko.toast
-import org.jetbrains.anko.yesButton
+import org.jetbrains.anko.*
 
 class MainActivity : AppCompatActivity() {
     private val ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners"
     private val ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
     private lateinit var actionBroadcastReceiver : ActionBroadcastReceiver
+    private var notificationManager: NotificationManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+//        //Подключаем сервис
+//        val mConnection = object : ServiceConnection {
+//            override fun onServiceConnected(className: ComponentName, service: IBinder) {
+//                // TODO
+//            }
+//
+//            override fun onServiceDisconnected(className: ComponentName) {
+//                // TODO
+//            }
+//        }
+//        bindService(Intent(this,MyNotesListenerService::class.java), mConnection, Context.BIND_AUTO_CREATE)
+//
+
         // If the user did not turn the notification listener service on we prompt him to do so
         if (!isNotificationServiceEnabled()) {
             alert(
@@ -34,11 +53,12 @@ class MainActivity : AppCompatActivity() {
 
 
         val title = "Мяу!"
-        val text = "А кота кто кормить будет?"
+        val text = "Тестовое сообщение"
         btn_send_message.setOnClickListener {
             //TODO Переделать на нормальную отправку нотификейшенов из котлина
             val notificationId = 1
 
+            @Suppress("DEPRECATION")
             val notificationBuilder = NotificationCompat.Builder(this@MainActivity)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
@@ -53,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         val intentFilter = IntentFilter()
         intentFilter.addAction("ru.tohaman.nls")
         registerReceiver(actionBroadcastReceiver, intentFilter)
+
     }
 
     override fun onDestroy() {
@@ -68,15 +89,34 @@ class MainActivity : AppCompatActivity() {
      */
     inner class ActionBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val receivedTextFromShazam = intent.getStringExtra("Notification Code")
-            text.text = receivedTextFromShazam
-            if (receivedTextFromShazam.startsWith("Сейчас:")) {
-                
-            }
+            var receivedTextFromShazam = intent.getStringExtra("Notification Code")
 
+            if (receivedTextFromShazam.startsWith("Сейчас:")) {
+                receivedTextFromShazam = receivedTextFromShazam.drop(7)
+                val artist = receivedTextFromShazam.substringBefore('—')
+                val song = receivedTextFromShazam.substringAfter('—')
+                notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+                createNotification("ru.tohaman.nls", artist, song)
+//                toast(artist)
+//                Log.v ("NLS", song)
+            }
+            text.text = receivedTextFromShazam
         }
     }
 
+    private fun createNotification (id: String, name: String, description: String) {
+
+        val notificationID = 101
+
+        val notification = Notification.Builder( this@MainActivity)
+            .setContentTitle(name)
+            .setContentText(description)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .build()
+
+        notificationManager?.notify(notificationID, notification)
+    }
 
     /**
      * Is Notification Service Enabled.
