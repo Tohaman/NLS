@@ -51,12 +51,13 @@ class MainActivity : AppCompatActivity() {
             }.show()
         }
 
+        btn_start_listen.setOnClickListener { startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
 
-        val title = "Мяу!"
-        val text = "Тестовое сообщение"
         btn_send_message.setOnClickListener {
             //TODO Переделать на нормальную отправку нотификейшенов из котлина
             val notificationId = 1
+            val title = "Мяу!"
+            val text = "Тестовое сообщение"
 
             @Suppress("DEPRECATION")
             val notificationBuilder = NotificationCompat.Builder(this@MainActivity)
