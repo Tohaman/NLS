@@ -99,9 +99,9 @@ class MainActivity : AppCompatActivity() {
                         createNotification("ru.tohaman.nls", artist, song)
                     }
                 }
-                text.text = receivedTextFromShazam
                 oldReceivedText = receivedTextFromShazam
             }
+            text.text = receivedTextFromShazam
         }
     }
 
