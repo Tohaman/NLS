@@ -2,8 +2,8 @@
     <string name="app_name">NLS</string>
     <string name="start_service">Старт сервиса</string>
     <string name="stop_service">Остановить сервис</string>
-    <string name="receive_notification">Тест</string>
-    <string name="send_notification">Отправить сообщение</string>
+    <string name="receive_notification">Проверка доступа</string>
+    <string name="send_notification">Тестовое сообщение</string>
     <string name="service_label">NLS_NotesListenerService</string>
     <string name="notification_listener_service">"Notification Listener Service"</string>
     <string name="notification_listener_service_explanation">"Для работы приложения, необходимо разрешить доступ NLS_Notification Listener Service к уведомлениям. Сделать это сейчас?"</string>

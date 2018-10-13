@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
     private val ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
     private lateinit var actionBroadcastReceiver : ActionBroadcastReceiver
     private var notificationManager: NotificationManager? = null
+    private var oldReceivedText = ""
+    private var counter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,22 +53,16 @@ class MainActivity : AppCompatActivity() {
             }.show()
         }
 
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         btn_start_listen.setOnClickListener { startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
 
         btn_send_message.setOnClickListener {
-            //TODO Переделать на нормальную отправку нотификейшенов из котлина
-            val notificationId = 1
+            val notificationId = "ru.tohaman.nls"
             val title = "Мяу!"
             val text = "Тестовое сообщение"
 
-            @Suppress("DEPRECATION")
-            val notificationBuilder = NotificationCompat.Builder(this@MainActivity)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(title)
-                .setContentText(text)
-
-            val notificationManager = NotificationManagerCompat.from(this@MainActivity)
-            notificationManager.notify(notificationId, notificationBuilder.build())
+            createNotification(notificationId, title, text)
         }
 
         // Finally we register a receiver to tell the MainActivity when a notification has been received
@@ -90,22 +86,26 @@ class MainActivity : AppCompatActivity() {
      */
     inner class ActionBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            counter += 1
+            text_counter.text = counter.toString()
+
             var receivedTextFromShazam = intent.getStringExtra("Notification Code")
-
-            if (receivedTextFromShazam.startsWith("Сейчас:")) {
-                receivedTextFromShazam = receivedTextFromShazam.drop(7)
-                val artist = receivedTextFromShazam.substringBefore('—')
-                val song = receivedTextFromShazam.substringAfter('—')
-                notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-                createNotification("ru.tohaman.nls", artist, song)
-//                toast(artist)
-//                Log.v ("NLS", song)
+            if (receivedTextFromShazam != "ru.tohaman.nls") {
+                if (receivedTextFromShazam.startsWith("Сейчас:")) {
+                    receivedTextFromShazam = receivedTextFromShazam.substringAfter(' ')
+                    val artist = receivedTextFromShazam.substringBefore('—')
+                    val song = receivedTextFromShazam.substringAfter('—')
+                    if (oldReceivedText != receivedTextFromShazam) {
+                        createNotification("ru.tohaman.nls", artist, song)
+                    }
+                }
+                text.text = receivedTextFromShazam
+                oldReceivedText = receivedTextFromShazam
             }
-            text.text = receivedTextFromShazam
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun createNotification (id: String, name: String, description: String) {
 
         val notificationID = 101
