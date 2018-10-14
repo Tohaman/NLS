@@ -124,6 +124,10 @@ class MainActivity : AppCompatActivity() {
      * Verifies if the notification listener service is enabled.
      * Got it from: https://github.com/kpbird/NotificationListenerService-Example/blob/master/NLSExample/src/main/java/com/kpbird/nlsexample/NLService.java
      * @return True if eanbled, false otherwise.
+     * К сожалению, данная проверка проверяет только есть ли разрешение для сервиса, но не проверяет запущен ли сервис
+     * пока не нашел как проверять еще и запуск сервиса, обычно он автоматически стартует когда выдается разрешение на запуск
+     * поэтому сделан отдельная кнопка для сброса установки "разрешения на доступ к notification", чтобы при установке
+     * разрешения, сервис стартовал.
      */
     private fun isNotificationServiceEnabled(): Boolean {
         //получаем список приложений с доступом к нотификейшенам
