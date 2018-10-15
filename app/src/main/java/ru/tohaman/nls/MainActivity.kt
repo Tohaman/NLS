@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         btn_send_message.setOnClickListener {
             val notificationId = "ru.tohaman.nls"
-            val title = "Мяу!"
+            val title = "Тест!"
             val text = "Тестовое сообщение"
             createNotification(notificationId, title, text)
         }
