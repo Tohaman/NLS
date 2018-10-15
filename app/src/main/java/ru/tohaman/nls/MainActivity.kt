@@ -1,19 +1,12 @@
 package ru.tohaman.nls
 
 import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.*
-import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.Settings
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
 import android.text.TextUtils
-import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
 
@@ -55,29 +48,28 @@ class MainActivity : AppCompatActivity() {
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        btn_start_listen.setOnClickListener { startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+        btn_check_access.setOnClickListener { startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
 
         btn_send_message.setOnClickListener {
             val notificationId = "ru.tohaman.nls"
             val title = "Мяу!"
             val text = "Тестовое сообщение"
-
             createNotification(notificationId, title, text)
         }
 
         // Finally we register a receiver to tell the MainActivity when a notification has been received
+        // Регистрируем броадкастовый ресивер, который принимает сообщения от сервиса, когда получен нотификейшен
+        // от какого-либо приложения
         actionBroadcastReceiver = ActionBroadcastReceiver()
         val intentFilter = IntentFilter()
         intentFilter.addAction("ru.tohaman.nls")
         registerReceiver(actionBroadcastReceiver, intentFilter)
-
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(actionBroadcastReceiver)
     }
-
 
     /**
      * Image Change Broadcast Receiver.
@@ -87,9 +79,10 @@ class MainActivity : AppCompatActivity() {
     inner class ActionBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             counter += 1
+            var textViewText = list_of_shazam.text.toString()
             text_counter.text = counter.toString()
 
-            var receivedTextFromShazam = intent.getStringExtra("Notification Code")
+            var receivedTextFromShazam = textViewText + "$counter " +intent.getStringExtra("Notification Code") + "\n"
             if (receivedTextFromShazam != "ru.tohaman.nls") {
                 if (receivedTextFromShazam.startsWith("Сейчас:")) {
                     receivedTextFromShazam = receivedTextFromShazam.substringAfter(' ')
@@ -99,15 +92,16 @@ class MainActivity : AppCompatActivity() {
                         createNotification("ru.tohaman.nls", artist, song)
                     }
                 }
+                textViewText += "$counter $receivedTextFromShazam \n"
                 oldReceivedText = receivedTextFromShazam
+                list_of_shazam.text = textViewText
             }
-            text.text = receivedTextFromShazam
+            last_message.text = receivedTextFromShazam
         }
     }
 
     @Suppress("DEPRECATION")
     private fun createNotification (id: String, name: String, description: String) {
-
         val notificationID = 101
 
         val notification = Notification.Builder( this@MainActivity)
