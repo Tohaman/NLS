@@ -79,18 +79,17 @@ class MainActivity : AppCompatActivity() {
     inner class ActionBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             counter += 1
-            var textViewText = list_of_shazam.text.toString()
             text_counter.text = counter.toString()
 
-            var receivedTextFromShazam = textViewText + "$counter " +intent.getStringExtra("Notification Code") + "\n"
-            if (receivedTextFromShazam != "ru.tohaman.nls") {
-                if (receivedTextFromShazam.startsWith("Сейчас:")) {
-                    receivedTextFromShazam = receivedTextFromShazam.substringAfter(' ')
-                    val artist = receivedTextFromShazam.substringBefore('—')
-                    val song = receivedTextFromShazam.substringAfter('—')
-                    if (oldReceivedText != receivedTextFromShazam) {
-                        createNotification("ru.tohaman.nls", artist, song)
-                    }
+            var receivedTextFromShazam = intent.getStringExtra("Notification Code")
+            if (receivedTextFromShazam.startsWith("Сейчас:")) {
+                var textViewText = list_of_shazam.text.toString()
+
+                receivedTextFromShazam = receivedTextFromShazam.substringAfter(' ')
+                val artist = receivedTextFromShazam.substringBefore('—')
+                val song = receivedTextFromShazam.substringAfter('—')
+                if (oldReceivedText != receivedTextFromShazam) {
+                    createNotification("ru.tohaman.nls", artist, song)
                 }
                 textViewText += "$counter $receivedTextFromShazam \n"
                 oldReceivedText = receivedTextFromShazam

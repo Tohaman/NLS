@@ -34,7 +34,6 @@
             android:layout_margin="8dp"
             android:text=""
             app:layout_constraintLeft_toRightOf="@+id/title_last_message"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_check_access"/>
 
     <TextView
@@ -64,7 +63,7 @@
             android:layout_margin="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text=""/>
+            android:text="0"/>
 
 
 
