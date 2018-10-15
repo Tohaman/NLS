@@ -88,12 +88,13 @@ class MainActivity : AppCompatActivity() {
                 receivedTextFromShazam = receivedTextFromShazam.substringAfter(' ')
                 val artist = receivedTextFromShazam.substringBefore('—')
                 val song = receivedTextFromShazam.substringAfter('—')
+                textViewText += "$counter $receivedTextFromShazam \n"
+
                 if (oldReceivedText != receivedTextFromShazam) {
                     createNotification("ru.tohaman.nls", artist, song)
+                    oldReceivedText = receivedTextFromShazam
+                    list_of_shazam.text = textViewText
                 }
-                textViewText += "$counter $receivedTextFromShazam \n"
-                oldReceivedText = receivedTextFromShazam
-                list_of_shazam.text = textViewText
             }
             last_message.text = receivedTextFromShazam
         }
