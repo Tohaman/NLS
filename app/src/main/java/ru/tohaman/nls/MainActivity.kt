@@ -51,9 +51,10 @@ class MainActivity : AppCompatActivity() {
         btn_check_access.setOnClickListener { startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
 
         btn_send_message.setOnClickListener {
+            val notificationId = "ru.tohaman.nls"
             val title = "Тест!"
             val text = "Тестовое сообщение"
-            createNotification(title, text)
+            createNotification(notificationId, title, text)
         }
 
         // Finally we register a receiver to tell the MainActivity when a notification has been received
@@ -88,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                 val artist = receivedTextFromShazam.substringBefore('—')
                 val song = receivedTextFromShazam.substringAfter('—')
                 if (oldReceivedText != receivedTextFromShazam) {
-                    createNotification(artist, song)
+                    createNotification("ru.tohaman.nls", artist, song)
                 }
                 textViewText += "$counter $receivedTextFromShazam \n"
                 oldReceivedText = receivedTextFromShazam
@@ -99,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun createNotification (name: String, description: String) {
+    private fun createNotification (id: String, name: String, description: String) {
         val notificationID = 101
 
         val notification = Notification.Builder( this@MainActivity)
