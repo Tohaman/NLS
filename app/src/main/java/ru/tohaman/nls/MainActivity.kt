@@ -1,5 +1,6 @@
 package ru.tohaman.nls
 
+import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.*
@@ -9,11 +10,15 @@ import android.provider.Settings
 import android.text.TextUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
+import android.content.Intent
+
+
 
 class MainActivity : AppCompatActivity() {
     private val ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners"
     private val ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
     private lateinit var actionBroadcastReceiver : ActionBroadcastReceiver
+
     private var notificationManager: NotificationManager? = null
     private var oldReceivedText = ""
     private var counter = 0
@@ -57,6 +62,30 @@ class MainActivity : AppCompatActivity() {
             createNotification(notificationId, title, text)
         }
 
+        // Variable to hold service class name
+        val serviceClass = NLS_Service::class.java
+        val intent = Intent(applicationContext, serviceClass)
+
+        btn_start_service.setOnClickListener {
+            if (!isServiceRunning(serviceClass)) {
+                // Start the service
+                startService(intent)
+            } else {
+                toast("Service already running.")
+            }
+        }
+
+        btn_stop_service.setOnClickListener {
+            // If the service is not running then start it
+            if (isServiceRunning(serviceClass)) {
+                // Stop the service
+                stopService(intent)
+            } else {
+                toast("Service already stopped.")
+            }
+        }
+
+
         // Finally we register a receiver to tell the MainActivity when a notification has been received
         // Регистрируем броадкастовый ресивер, который принимает сообщения от сервиса, когда получен нотификейшен
         // от какого-либо приложения
@@ -70,6 +99,21 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         unregisterReceiver(actionBroadcastReceiver)
     }
+
+    // Custom method to determine whether a service is running
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+
+        // Loop through the running services
+        for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                // If the service is running then return true
+                return true
+            }
+        }
+        return false
+    }
+
 
     /**
      * Image Change Broadcast Receiver.
@@ -91,7 +135,6 @@ class MainActivity : AppCompatActivity() {
                 textViewText += "$counter $receivedTextFromShazam \n"
 
                 if (oldReceivedText != receivedTextFromShazam) {
-                    createNotification("ru.tohaman.nls", artist, song)
                     oldReceivedText = receivedTextFromShazam
                     list_of_shazam.text = textViewText
                 }

@@ -14,6 +14,7 @@ class MyNotesListenerService : NotificationListenerService() {
     private var mBinder: IBinder? = null
 
     override fun onBind(intent: Intent): IBinder? {
+        Log.d("MyNotificationListener", "onBind: ")
         if (mBinder == null)
             mBinder = super.onBind(intent)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -22,18 +23,20 @@ class MyNotesListenerService : NotificationListenerService() {
     }
 
     override fun onCreate() {
+        Log.d("MyNotificationListener", "onCreate: ")
         super.onCreate()
         if (!isListeningAuthorized(this))
             return
-        Log.d("NotificationListener", "onCreate: ")
     }
 
     override fun onDestroy() {
+        Log.d("MyNotificationListener", "onDestroy: ")
         super.onDestroy()
         this.mBinder = null
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        Log.d("MyNotificationListener", "onNotificationPosted: ")
         //val notificationCode = matchNotificationCode(sbn)
 
 //        if (notificationCode == InterceptedNotificationCode.SHAZAM_CODE) {
@@ -49,6 +52,7 @@ class MyNotesListenerService : NotificationListenerService() {
 
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        Log.d("MyNotificationListener", "onNotificationRemoved: ")
         val notificationCode = matchNotificationCode(sbn)
 
         val activeNotifications = this.activeNotifications
@@ -66,9 +70,7 @@ class MyNotesListenerService : NotificationListenerService() {
     }
 
      private fun matchNotificationCode(sbn: StatusBarNotification): String {
-
          return sbn.packageName
-//        }
     }
 
 
