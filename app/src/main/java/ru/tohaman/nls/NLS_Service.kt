@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.toast
 import java.util.*
@@ -66,6 +67,8 @@ class NLS_Service : Service() {
             counter += 1
             var receivedTextFromShazam = intent.getStringExtra("Notification Code")
 //            toast ("Получено сообщение")
+            Log.d("NLS_Service = ", "$receivedTextFromShazam")
+            if (receivedTextFromShazam.startsWith("ru.tohaman.nls")) { toast ("Сервис работает")}
             if (receivedTextFromShazam.startsWith("Сейчас:")) {
 
                 receivedTextFromShazam = receivedTextFromShazam.substringAfter(' ')

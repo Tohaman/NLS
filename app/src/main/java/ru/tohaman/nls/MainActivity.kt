@@ -51,20 +51,23 @@ class MainActivity : AppCompatActivity() {
             }.show()
         }
 
+        // Variable to hold service class name
+        val serviceClass = NLS_Service::class.java
+        val intent = Intent(applicationContext, serviceClass)
+
+        //Проверяем запущен ли NLS_Service, если нет, то запускаем
+        if (!isServiceRunning(serviceClass)) { startService(intent) }
+
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         btn_check_access.setOnClickListener { startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
 
         btn_send_message.setOnClickListener {
             val notificationId = "ru.tohaman.nls"
-            val title = "Тест!"
+            val title = "Test"
             val text = "Тестовое сообщение"
             createNotification(notificationId, title, text)
         }
-
-        // Variable to hold service class name
-        val serviceClass = NLS_Service::class.java
-        val intent = Intent(applicationContext, serviceClass)
 
         btn_start_service.setOnClickListener {
             if (!isServiceRunning(serviceClass)) {

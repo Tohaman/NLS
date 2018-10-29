@@ -11,15 +11,11 @@ import android.util.Log
 
 class MyNotesListenerService : NotificationListenerService() {
 
-    private var mBinder: IBinder? = null
+    //private var mBinder: IBinder? = null
 
     override fun onBind(intent: Intent): IBinder? {
         Log.d("MyNotificationListener", "onBind: ")
-        if (mBinder == null)
-            mBinder = super.onBind(intent)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            onListenerConnected()
-        return mBinder
+        return super.onBind(intent)
     }
 
     override fun onCreate() {
@@ -32,7 +28,7 @@ class MyNotesListenerService : NotificationListenerService() {
     override fun onDestroy() {
         Log.d("MyNotificationListener", "onDestroy: ")
         super.onDestroy()
-        this.mBinder = null
+        //this.mBinder = null
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -40,13 +36,16 @@ class MyNotesListenerService : NotificationListenerService() {
         //val notificationCode = matchNotificationCode(sbn)
 
 //        if (notificationCode == InterceptedNotificationCode.SHAZAM_CODE) {
-            val retString = if (sbn.notification.tickerText == null) {
-                sbn.packageName
-            } else {sbn.notification.tickerText.toString()}
+        //val map = sbn.notification.extras
+        val retString = if (sbn.notification.tickerText == null) {
+            sbn.packageName
+        } else {
+            sbn.notification.tickerText.toString()
+        }
 
-            val intent = Intent("ru.tohaman.nls")
-            intent.putExtra("Notification Code", retString)
-            sendBroadcast(intent)
+        val intent = Intent("ru.tohaman.nls")
+        intent.putExtra("Notification Code", retString)
+        sendBroadcast(intent)
 //        }
     }
 
