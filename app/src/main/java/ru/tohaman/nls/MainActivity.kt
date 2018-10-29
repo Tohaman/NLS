@@ -11,7 +11,7 @@ import android.text.TextUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
 import android.content.Intent
-
+import android.os.IBinder
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,19 +27,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        //Подключаем сервис
-//        val mConnection = object : ServiceConnection {
-//            override fun onServiceConnected(className: ComponentName, service: IBinder) {
-//                // TODO
-//            }
-//
-//            override fun onServiceDisconnected(className: ComponentName) {
-//                // TODO
-//            }
-//        }
-//        bindService(Intent(this,MyNotesListenerService::class.java), mConnection, Context.BIND_AUTO_CREATE)
-//
-
         // If the user did not turn the notification listener service on we prompt him to do so
         if (!isNotificationServiceEnabled()) {
             alert(
@@ -50,6 +37,18 @@ class MainActivity : AppCompatActivity() {
                 noButton { toast("Жаль то какая...") }
             }.show()
         }
+
+        //        //Подключаем сервис (не работает)
+//        val mConnection = object : ServiceConnection {
+//            override fun onServiceConnected(className: ComponentName, service: IBinder) {
+//                // TODO
+//            }
+//            override fun onServiceDisconnected(className: ComponentName) {
+//                // TODO
+//            }
+//        }
+//        bindService(Intent(this,MyNotesListenerService::class.java), mConnection, Context.BIND_AUTO_CREATE)
+
 
         // Variable to hold service class name
         val serviceClass = NLS_Service::class.java
